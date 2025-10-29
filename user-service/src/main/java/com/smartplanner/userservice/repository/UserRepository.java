@@ -1,5 +1,6 @@
-package com.smartplanner.userservice;
+package com.smartplanner.userservice.repository;
 
+import com.smartplanner.userservice.entity.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 

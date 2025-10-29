@@ -1,4 +1,4 @@
-package com.smartplanner.userservice;
+package com.smartplanner.userservice.dto;
 
 import lombok.Data;
 

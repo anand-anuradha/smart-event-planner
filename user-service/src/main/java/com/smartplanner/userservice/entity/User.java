@@ -1,4 +1,4 @@
-package com.smartplanner.userservice;
+package com.smartplanner.userservice.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
