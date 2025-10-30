@@ -1,7 +1,7 @@
 package com.smartplanner.userservice.security;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,36 +10,47 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${app.jwtSecret}")
+    @Value("${app.jwt.secret:MyJwtSecretKey12345}")
     private String jwtSecret;
 
-    @Value("${app.jwtExpirationMs}")
-    private long jwtExpirationMs;
+    @Value("${app.jwt.expiration:3600000}") // 1 hour default
+    private long jwtExpirationInMs;
 
-    // Generate JWT Token
+    // Generate JWT token
     public String generateToken(String email) {
-        return JWT.create()
-                .withSubject(email)
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .sign(Algorithm.HMAC256(jwtSecret));
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(Keys.hmacShaKeyFor(jwtSecret.getBytes()), SignatureAlgorithm.HS512)
+                .compact();
     }
 
-    // Validate JWT Token
-    public boolean validateToken(String token) {
-        try {
-            JWT.require(Algorithm.HMAC256(jwtSecret)).build().verify(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    // Extract email from token
+    // Extract email from JWT token
     public String getEmailFromToken(String token) {
-        return JWT.require(Algorithm.HMAC256(jwtSecret))
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
                 .build()
-                .verify(token)
-                .getSubject();
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
+    }
+
+    // Validate JWT token
+    public boolean validateToken(String authToken) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                    .build()
+                    .parseClaimsJws(authToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException ex) {
+            System.out.println("Invalid or expired JWT token: " + ex.getMessage());
+        }
+        return false;
     }
 }

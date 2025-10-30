@@ -1,7 +1,8 @@
 package com.smartplanner.userservice.controller;
 
+import com.smartplanner.userservice.dto.JwtResponse;
+import com.smartplanner.userservice.dto.LoginRequest;
 import com.smartplanner.userservice.entity.User;
-import com.smartplanner.userservice.security.JwtTokenProvider;
 import com.smartplanner.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,24 +15,17 @@ public class AuthController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
-    // Register new user
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        User savedUser = userService.register(user);
-        return ResponseEntity.ok(savedUser);
+    // Login endpoint
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
+        JwtResponse jwtResponse = userService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        return ResponseEntity.ok(jwtResponse);
     }
 
-    // Login user
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        User existingUser = userService.login(user.getEmail(), user.getPassword());
-        if (existingUser == null) {
-            return ResponseEntity.status(401).body("Invalid email or password");
-        }
-        String token = jwtTokenProvider.generateToken(existingUser.getEmail());
-        return ResponseEntity.ok(token);
+    // Register endpoint
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody User user) {
+        User savedUser = userService.register(user);
+        return ResponseEntity.ok(savedUser);
     }
 }
