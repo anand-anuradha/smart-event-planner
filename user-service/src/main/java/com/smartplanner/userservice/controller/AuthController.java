@@ -2,6 +2,8 @@ package com.smartplanner.userservice.controller;
 
 import com.smartplanner.userservice.dto.JwtResponse;
 import com.smartplanner.userservice.dto.LoginRequest;
+import com.smartplanner.userservice.dto.UserRequestDTO;
+import com.smartplanner.userservice.dto.UserResponseDTO;
 import com.smartplanner.userservice.entity.User;
 import com.smartplanner.userservice.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,17 @@ public class AuthController {
 
     // Register endpoint
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User user) {
-        User savedUser = userService.register(user);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<UserResponseDTO> register(@RequestBody UserRequestDTO userRequestDTO) {
+        User savedUser = userService.register(userRequestDTO);
+
+        // Map Entity → Response DTO
+        UserResponseDTO responseDTO = new UserResponseDTO();
+        responseDTO.setId(savedUser.getId());
+        responseDTO.setFirstName(savedUser.getFirstName());
+        responseDTO.setLastName(savedUser.getLastName());
+        responseDTO.setEmail(savedUser.getEmail());
+        responseDTO.setRole(savedUser.getRole());
+
+        return ResponseEntity.ok(responseDTO);
     }
 }

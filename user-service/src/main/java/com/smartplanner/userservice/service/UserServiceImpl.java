@@ -1,14 +1,13 @@
 package com.smartplanner.userservice.service;
 
+import com.smartplanner.userservice.dto.JwtResponse;
+import com.smartplanner.userservice.dto.UserRequestDTO;
 import com.smartplanner.userservice.entity.User;
 import com.smartplanner.userservice.repository.UserRepository;
 import com.smartplanner.userservice.security.JwtService;
-import com.smartplanner.userservice.dto.JwtResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,16 +32,22 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid email or password");
         }
 
-        // Generate JWT using email (not the User object)
+        // Generate JWT using email only
         String jwtToken = jwtService.generateToken(user.getEmail());
 
         return new JwtResponse(jwtToken);
     }
 
     @Override
-    public User register(User user) {
-        // Hash password before saving
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User register(UserRequestDTO userRequestDTO) {
+        // Map DTO → Entity
+        User user = new User();
+        user.setFirstName(userRequestDTO.getFirstName());
+        user.setLastName(userRequestDTO.getLastName());
+        user.setEmail(userRequestDTO.getEmail());
+        user.setRole(userRequestDTO.getRole());
+        user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+
         return userRepository.save(user);
     }
 }

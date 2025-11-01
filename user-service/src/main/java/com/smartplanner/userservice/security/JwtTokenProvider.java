@@ -13,10 +13,10 @@ public class JwtTokenProvider {
     @Value("${app.jwt.secret:MyJwtSecretKey12345}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration:3600000}") // 1 hour default
+    @Value("${app.jwt.expiration:86400000}") // 24 hours default
     private long jwtExpirationInMs;
 
-    // Generate JWT token
+    // Generate JWT token using email
     public String generateToken(String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
