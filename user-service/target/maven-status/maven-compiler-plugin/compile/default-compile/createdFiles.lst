@@ -1,0 +1,5 @@
+com\smartplanner\userservice\config\SecurityConfig.class
+com\smartplanner\userservice\security\JwtAuthFilter.class
+com\smartplanner\userservice\security\JwtTokenProvider.class
+com\smartplanner\userservice\UserServiceApplication.class
+com\smartplanner\userservice\config\SwaggerConfig.class
